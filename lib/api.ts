@@ -459,6 +459,7 @@ export interface HrProgressResponse {
   yourHr: string;
   partnerHr: string;
   stage: string;
+  yourReason?: string | null;
 }
 
 export async function getHrProgress(
@@ -472,10 +473,16 @@ export async function getHrProgress(
 export async function submitHrDecision(
   swapRequestId: string,
   decision: HrDecisionValue,
+  reason?: string,
 ): Promise<HrProgressResponse> {
   return apiFetch<HrProgressResponse>(
     `/swap-request/${swapRequestId}/hr-decision`,
-    { method: 'POST', body: JSON.stringify({ decision }) },
+    {
+      method: 'POST',
+      body: JSON.stringify(
+        reason && reason.trim() ? { decision, reason: reason.trim() } : { decision },
+      ),
+    },
   );
 }
 

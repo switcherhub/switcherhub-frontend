@@ -19,6 +19,7 @@ export function HrDecisionPanel({ swapId }: { swapId: string }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState<HrDecisionValue | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reason, setReason] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -38,7 +39,15 @@ export function HrDecisionPanel({ swapId }: { swapId: string }) {
     setSubmitting(decision);
     setError(null);
     try {
-      setProgress(await submitHrDecision(swapId, decision));
+      const withReason =
+        decision === 'declined' || decision === 'needs_clarification';
+      setProgress(
+        await submitHrDecision(
+          swapId,
+          decision,
+          withReason ? reason : undefined,
+        ),
+      );
     } catch {
       setError('Could not submit your decision. Please try again.');
     } finally {
@@ -82,7 +91,31 @@ export function HrDecisionPanel({ swapId }: { swapId: string }) {
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
       {!yourDecided && (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4">
+          <label
+            htmlFor="hr-reason"
+            className="text-sm font-medium text-muted-foreground"
+          >
+            Note for decline or clarification (optional)
+          </label>
+          <textarea
+            id="hr-reason"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            maxLength={1000}
+            rows={2}
+            placeholder="e.g. We need to confirm the shift coverage first."
+            className="mt-1 w-full rounded-md border p-2 text-sm"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Only sent with a Decline or clarification request. Not shared with the
+            worker.
+          </p>
+        </div>
+      )}
+
+      {!yourDecided && (
+        <div className="mt-3 flex flex-wrap gap-2">
           <Button
             onClick={() => decide('approved')}
             disabled={submitting !== null}
@@ -111,6 +144,12 @@ export function HrDecisionPanel({ swapId }: { swapId: string }) {
         <p className="mt-3 text-sm text-muted-foreground">
           Your decision is recorded. Waiting for the partner employer. No response
           is not a decline.
+        </p>
+      )}
+
+      {yourDecided && progress?.yourReason && (
+        <p className="mt-2 text-sm text-muted-foreground">
+          <span className="font-medium">Your note:</span> {progress.yourReason}
         </p>
       )}
     </div>
