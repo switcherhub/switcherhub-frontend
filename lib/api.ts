@@ -452,6 +452,33 @@ export async function getSwapRequest(
   return apiFetch<SwapRequestItem>(`/swap-request/${swapRequestId}`);
 }
 
+// ── Explicit HR decisions (spec §7), separate from payment ──
+export type HrDecisionValue = 'approved' | 'declined' | 'needs_clarification';
+
+export interface HrProgressResponse {
+  yourHr: string;
+  partnerHr: string;
+  stage: string;
+}
+
+export async function getHrProgress(
+  swapRequestId: string,
+): Promise<HrProgressResponse> {
+  return apiFetch<HrProgressResponse>(
+    `/swap-request/${swapRequestId}/hr-progress`,
+  );
+}
+
+export async function submitHrDecision(
+  swapRequestId: string,
+  decision: HrDecisionValue,
+): Promise<HrProgressResponse> {
+  return apiFetch<HrProgressResponse>(
+    `/swap-request/${swapRequestId}/hr-decision`,
+    { method: 'POST', body: JSON.stringify({ decision }) },
+  );
+}
+
 export async function deleteSwapRequest(
   swapRequestId: string,
 ): Promise<unknown> {

@@ -12,6 +12,7 @@ import {
   itemToRow,
   SwapRequestDetailsContent,
 } from '@/components/swap-request/swap-request-details-modal';
+import { HrDecisionPanel } from '@/components/swap-request/hr-decision-panel';
 
 export default function SwapRequestDetailsPage() {
   const params = useParams();
@@ -105,6 +106,9 @@ export default function SwapRequestDetailsPage() {
         onBack={handleBack}
         onAfterDelete={handleAfterDelete}
       />
+      <div className="px-4 pb-6 sm:px-6">
+        <HrDecisionPanel swapId={id} />
+      </div>
     </Content>
   );
 }
